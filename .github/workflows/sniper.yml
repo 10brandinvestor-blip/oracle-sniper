@@ -2,7 +2,7 @@ name: Oracle Sniper
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/10 * * * *'
   workflow_dispatch: 
 
 jobs:
@@ -20,16 +20,14 @@ jobs:
           echo "tenancy=${{ secrets.OCI_TENANCY_OCID }}" >> ~/.oci/config
           echo "region=${{ secrets.OCI_REGION }}" >> ~/.oci/config
           
-          # Key file ko sahi tareeke se save karein
           printf "%b" "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/oci_api_key.pem
           
-          # Permissions fix karein
           chmod 600 ~/.oci/config
           chmod 600 ~/.oci/oci_api_key.pem
           
       - name: Launch Instance
         run: |
-          # AD ka naam update kar diya gaya hai
+          # Try Ampere A1 (6GB RAM)
           oci compute instance launch \
           --availability-domain "MeYq:EU-FRANKFURT-1-AD-2" \
           --compartment-id "${{ secrets.OCI_COMPARTMENT_ID }}" \
@@ -38,4 +36,4 @@ jobs:
           --image-id "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaada362yxj4vcvznlizmwszoen3rc56kz56tph4fe5wgsnp2p5o2xq" \
           --subnet-id "ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaaw5p45ihu62pmgextpupvbqpkblmhile5lsgsozqdrftz3cxjxrda" \
           --display-name "Sniper-Server" \
-          --assign-public-ip true
+          --assign-public-ip true || echo "Ampere A1 busy..."
