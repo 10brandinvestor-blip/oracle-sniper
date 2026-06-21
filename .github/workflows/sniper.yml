@@ -1,0 +1,33 @@
+name: Oracle Sniper
+
+on:
+  schedule:
+    - cron: '*/15 * * * *' # Har 15 minute mein check karega
+  workflow_dispatch: 
+
+jobs:
+  snipe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup OCI CLI
+        run: |
+          pip install oci-cli
+          mkdir -p ~/.oci
+          echo "[DEFAULT]" > ~/.oci/config
+          echo "user=${{ secrets.OCI_USER_OCID }}" >> ~/.oci/config
+          echo "fingerprint=${{ secrets.OCI_FINGERPRINT }}" >> ~/.oci/config
+          echo "key_file=~/.oci/oci_api_key.pem" >> ~/.oci/config
+          echo "tenancy=${{ secrets.OCI_TENANCY_OCID }}" >> ~/.oci/config
+          echo "region=${{ secrets.OCI_REGION }}" >> ~/.oci/config
+          echo "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/oci_api_key.pem
+          
+      - name: Launch Instance
+        run: |
+          oci compute instance launch \
+          --availability-domain "AD-2" \
+          --compartment-id ${{ secrets.OCI_COMPARTMENT_ID }} \
+          --shape VM.Standard.A1.Flex \
+          --shape-config '{"ocpus": 1, "memoryInGBs": 6}' \
+          --image-id "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaada362yxj4vcvznlizmwszoen3rc56kz56tph4fe5wgsnp2p5o2xq" \
+          --subnet-id "ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaaw5p45ihu62pmgextpupvbqpkblmhile5lsgsozqdrftz3cxjxrda" \
+          --display-name "Sniper-Server"
