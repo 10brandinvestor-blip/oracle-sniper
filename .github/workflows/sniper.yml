@@ -20,17 +20,18 @@ jobs:
           echo "tenancy=${{ secrets.OCI_TENANCY_OCID }}" >> ~/.oci/config
           echo "region=${{ secrets.OCI_REGION }}" >> ~/.oci/config
           
-          # Private key ko safe tareeke se file mein likhna
+          # Key file ko sahi tareeke se save karein
           printf "%b" "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/oci_api_key.pem
           
-          # Permissions set karna (Error fix)
+          # Permissions fix karein
           chmod 600 ~/.oci/config
           chmod 600 ~/.oci/oci_api_key.pem
           
       - name: Launch Instance
         run: |
-          # Instance launch command
+          # AD ka naam update kar diya gaya hai
           oci compute instance launch \
+          --availability-domain "MeYq:EU-FRANKFURT-1-AD-2" \
           --compartment-id "${{ secrets.OCI_COMPARTMENT_ID }}" \
           --shape "VM.Standard.A1.Flex" \
           --shape-config '{"ocpus": 1, "memoryInGBs": 6}' \
