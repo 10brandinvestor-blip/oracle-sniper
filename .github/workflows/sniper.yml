@@ -20,20 +20,21 @@ jobs:
           echo "tenancy=${{ secrets.OCI_TENANCY_OCID }}" >> ~/.oci/config
           echo "region=${{ secrets.OCI_REGION }}" >> ~/.oci/config
           
-          # Private key file create kar rahe hain
-          echo "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/oci_api_key.pem
+          # Private key ko safe tareeke se file mein likhna
+          printf "%b" "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/oci_api_key.pem
           
-          # Permissions set karna bahut zaroori hai (Error fix)
+          # Permissions set karna (Error fix)
           chmod 600 ~/.oci/config
           chmod 600 ~/.oci/oci_api_key.pem
           
       - name: Launch Instance
         run: |
+          # Instance launch command
           oci compute instance launch \
-          --availability-domain "AD-2" \
-          --compartment-id ${{ secrets.OCI_COMPARTMENT_ID }} \
-          --shape VM.Standard.A1.Flex \
+          --compartment-id "${{ secrets.OCI_COMPARTMENT_ID }}" \
+          --shape "VM.Standard.A1.Flex" \
           --shape-config '{"ocpus": 1, "memoryInGBs": 6}' \
           --image-id "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaada362yxj4vcvznlizmwszoen3rc56kz56tph4fe5wgsnp2p5o2xq" \
           --subnet-id "ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaaw5p45ihu62pmgextpupvbqpkblmhile5lsgsozqdrftz3cxjxrda" \
-          --display-name "Sniper-Server"
+          --display-name "Sniper-Server" \
+          --assign-public-ip true
